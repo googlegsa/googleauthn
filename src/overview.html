@@ -1,0 +1,111 @@
+<body>
+
+<center>
+Google Authentication Adaptor Deployment
+</center>
+
+Starting point (aka .Requirements.):<br><ul>
+<li> Have a Google domain that you can administer
+<li> Have Java JRE 1.6u27 or higher on computer that runs adaptor
+<li> Get binary (Java jar file)
+</ul>
+
+<br>
+
+4 steps to deployment:<ol>
+<li> Get your instance of the application a .key. from Google
+<li> Administer domain, adding application.s key and giving application permissions
+<li> Configure your adaptor by creating an adaptor-config.properties file
+<li> Configure your GSA -- including LDAP
+</ol>
+
+<br>
+
+Step 1 Alternative A -- Get your instance of the application a .key. from Google.<br>
+<ul>
+    <li>Create an API project in the Google APIs Console (https://code.google.com/apis/console/)
+    <li>Select the API Access tab in your API Project, click Create an OAuth 2.0 client ID, and follow the prompts to create an Installed application Application Type with required access credentials.  At the end of this creation process you should have a Client ID and Client secret .
+</ul>
+
+<br>
+
+Step 1 Alternative B -- Use your Google Apps Domain.s Client ID and Client secret.<br>
+<ul>
+   <li> Login to your domain. Goto Advanced tools > Authentication > Manage OAuth domain key
+   <li> Record your OAuth consumer key and OAuth consumer secret. These are equivalent to the Client ID and Client secret of step 1A.
+   <li> Make sure that the Enable this consumer key checkbox on Oauth consumer key is checked.
+
+   Note: Alternative B may is simpler than Alternative A, but has been flaky.
+   Note: Allow access to all APIs checkbox doesn.t work as expected.
+</ul>
+
+<br>
+
+Step 2 -- Administer domain, adding application.s key and giving application permission<br>
+<ul>
+   <li> Login to your domain.  Goto Advanced tools > Authentication > Manage third party OAuth Client access
+   <li> Add your new service account as an Authorized API client. Put your Client ID in the Client Name column and put this value for the One or More API Scopes:
+
+https://apps-apis.google.com/a/feeds/group/#readonly
+
+   <li>If successful, then each scope will have a user-readable name (like .Group Provisioning.).
+</ul>
+
+<br>
+
+Step 3 -- Configure your adaptor by creating an adaptor-config.properties file.<br>
+<ul>
+    <li>Make a text file, that is named adaptor-config.properties, in the directory that has binary.
+    <li>Here is a model for its contents:
+<pre>
+gsa.hostname=sgsa39
+server.secure=true
+google-authn.domain=amazingballoons.com
+google-authn.consumerKey=Client ID
+google-authn.consumerSecret=Client secret
+</pre>
+</ul>
+
+<br>
+
+Step 4 -- Configure your GSA<br>
+<ul>
+    <li>In the GSA's Admin Console, go to Serving > Universal Login Auth
+    Mechanisms > SAML. Add a new mechanism where:
+    <dl>
+      <dt>IDP Entity ID</dt>
+      <dd>http://google.com/enterprise/gsa/adaptor</dd>
+      <dt>Login URL<dt>
+      <dd>https://bruteforce.mtv.corp.google.com:5678/samlip</dd>
+      <dt>Artifact Resolver URL</dt>
+      <dd>https://bruteforce.mtv.corp.google.com:5678/artifact</dd>
+    </dl>
+</ul>
+
+Step 5 -- Set up Security<br>
+See the adaptor documentation for setting up an adaptor in "secure mode".
+
+<br>
+in command line: java -jar adaptor-googleauthn-xxxxxxxx.jar
+
+
+<hr>
+
+When running, to control logging, use the following logging.properties file:
+<pre>
+.level=FINER
+com.google.gdata.level=INFO
+com.google.enterprise.adaptor.level=FINER
+com.google.enterprise.adaptor.googleauthn.level=FINER
+handlers=java.util.logging.FileHandler,java.util.logging.ConsoleHandler
+
+java.util.logging.FileHandler.formatter=com.google.enterprise.adaptor.CustomFormatter
+java.util.logging.FileHandler.pattern=adaptor.%g.log
+java.util.logging.FileHandler.limit=10485760
+java.util.logging.FileHandler.count=5
+
+java.util.logging.ConsoleHandler.formatter=com.google.enterprise.adaptor.CustomFormatter
+java.util.logging.ConsoleHandler.level=INFO
+</pre>
+
+</body>
