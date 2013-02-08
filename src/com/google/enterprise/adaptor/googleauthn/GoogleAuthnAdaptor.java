@@ -174,9 +174,11 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
   }
 
   private List<String> getAllGroups(String username) throws IOException {
+    // Username known to be valid and trusted.
+    String userDomain = username.split("@", 2)[1];
     AppsGroupsService groupService;
     try {
-      groupService = new AppsGroupsService(domain, PROGRAM_NAME);
+      groupService = new AppsGroupsService(userDomain, PROGRAM_NAME);
     } catch (AuthenticationException ex) {
       throw new IOException("Failed to create groups service", ex);
     }
@@ -309,6 +311,20 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
         return;
       }
       log.log(Level.FINE, "User {0} authenticated", email);
+      String[] parts = email.split("@", 2);
+      if (parts.length != 2) {
+        log.log(Level.WARNING,
+            "Authn failed: Could not determine user's domain: {0}", email);
+        callback.userAuthenticated(ex, null);
+        return;
+      }
+      if (!domain.equals(parts[1])) {
+        log.log(Level.WARNING,
+            "Authn failed: User {0} has domain {1} which is not the expected "
+            + "domain {2}", new Object[] {email, parts[1], domain});
+        callback.userAuthenticated(ex, null);
+        return;
+      }
       final Set<String> groups;
       try {
         groups = Collections.unmodifiableSet(
