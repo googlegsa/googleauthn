@@ -194,7 +194,9 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
       GenericFeed groupsFeed = groupService.retrieveGroups(username, true);
       while (groupsFeed != null) {
         for (GenericEntry entry : groupsFeed.getEntries()) {
-          groups.add(entry.getProperty("groupId"));
+          // Use groupName instead of groupId because groupName uses the group's
+          // canonical casing.
+          groups.add(entry.getProperty("groupName") + "@" + domain);
         }
         Link nextPage = groupsFeed.getNextLink();
         if (nextPage == null) {
