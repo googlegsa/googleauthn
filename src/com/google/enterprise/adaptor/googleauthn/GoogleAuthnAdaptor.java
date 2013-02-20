@@ -191,7 +191,7 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
     try {
       log.log(Level.FINE, "Getting group entries for {0}", username);
       ArrayList<String> groups = new ArrayList<String>();
-      GenericFeed groupsFeed = groupService.retrieveGroups(username, true);
+      GenericFeed groupsFeed = groupService.retrieveGroups(username, false);
       while (groupsFeed != null) {
         for (GenericEntry entry : groupsFeed.getEntries()) {
           // Use groupName instead of groupId because groupName uses the group's
