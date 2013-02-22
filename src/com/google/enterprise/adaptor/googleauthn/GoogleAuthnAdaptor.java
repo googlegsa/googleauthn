@@ -194,9 +194,9 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
       GenericFeed groupsFeed = groupService.retrieveGroups(username, false);
       while (groupsFeed != null) {
         for (GenericEntry entry : groupsFeed.getEntries()) {
-          // Use groupName instead of groupId because groupName uses the group's
-          // canonical casing.
-          groups.add(entry.getProperty("groupName") + "@" + domain);
+          // Normalize to always lower case (even though we haven't seen
+          // anything other than lower case).
+          groups.add(entry.getProperty("groupId").toLowerCase(Locale.ENGLISH));
         }
         Link nextPage = groupsFeed.getNextLink();
         if (nextPage == null) {
