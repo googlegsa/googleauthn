@@ -24,6 +24,8 @@ import com.google.enterprise.adaptor.AuthnAdaptor;
 import com.google.enterprise.adaptor.AuthnIdentity;
 import com.google.enterprise.adaptor.Config;
 import com.google.enterprise.adaptor.DocIdPusher;
+import com.google.enterprise.adaptor.GroupPrincipal;
+import com.google.enterprise.adaptor.UserPrincipal;
 import com.google.enterprise.adaptor.HttpExchanges;
 import com.google.enterprise.adaptor.Request;
 import com.google.enterprise.adaptor.Response;
@@ -55,6 +57,7 @@ import org.openid4java.message.ax.FetchRequest;
 import org.openid4java.message.ax.FetchResponse;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -226,6 +229,18 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
     return new OAuthHmacSha1Signer();
   }
 
+  private static void respond(HttpExchange ex, int code, String textResponse)
+      throws IOException {
+    ex.getResponseHeaders().set("Content-Type", "text/plain");
+    byte[] bytes = textResponse.getBytes(Charset.forName("UTF-8"));
+    ex.sendResponseHeaders(code, bytes.length);
+    OutputStream os = ex.getResponseBody();
+    os.write(bytes);
+    os.flush();
+    os.close();
+    ex.close();
+  }
+
   private static class SessionData {
     private final ConsumerManager manager;
     private final DiscoveryInformation discovered;
@@ -246,9 +261,8 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
       if (session == null) {
         log.log(Level.WARNING, "Authn failed: Could not find user's session");
         // TODO(ejona): Translate.
-        HttpExchanges.respond(ex, HttpURLConnection.HTTP_INTERNAL_ERROR,
-            "text/plain",
-            "Could not find user's session".getBytes(Charset.forName("UTF-8")));
+        respond(ex, HttpURLConnection.HTTP_INTERNAL_ERROR,
+            "Could not find user's session");
         return;
       }
       SessionData sessionData
@@ -256,9 +270,8 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
       if (sessionData == null) {
         log.log(Level.WARNING, "Authn failed: Could not find session data");
         // TODO(ejona): Translate.
-        HttpExchanges.respond(ex, HttpURLConnection.HTTP_INTERNAL_ERROR,
-            "text/plain",
-            "Could not find session data".getBytes(Charset.forName("UTF-8")));
+        respond(ex, HttpURLConnection.HTTP_INTERNAL_ERROR,
+            "Could not find session data");
         return;
       }
       ConsumerManager manager = sessionData.manager;
@@ -327,19 +340,28 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
         callback.userAuthenticated(ex, null);
         return;
       }
-      final Set<String> groups;
+      List<String> stringGroups;
       try {
-        groups = Collections.unmodifiableSet(
-            new HashSet<String>(getAllGroups(email)));
+        stringGroups = getAllGroups(email);
       } catch (IOException e) {
         log.log(Level.WARNING, "Authn failed: Error getting groups", e);
         callback.userAuthenticated(ex, null);
         return;
       }
+      final UserPrincipal user = new UserPrincipal(email);
+      final Set<GroupPrincipal> groups;
+      {
+        Set<GroupPrincipal> tmpGroups
+            = new HashSet<GroupPrincipal>(stringGroups.size() * 2);
+        for (String group : stringGroups) {
+          tmpGroups.add(new GroupPrincipal(group));
+        }
+        groups = Collections.unmodifiableSet(tmpGroups);
+      }
       AuthnIdentity identity = new AuthnIdentity() {
         @Override
-        public String getUsername() {
-          return email;
+        public UserPrincipal getUser() {
+          return user;
         }
 
         @Override
@@ -348,7 +370,7 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
         }
 
         @Override
-        public Set<String> getGroups() {
+        public Set<GroupPrincipal> getGroups() {
           return groups;
         }
       };
