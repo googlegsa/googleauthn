@@ -20,7 +20,7 @@ import com.sun.net.httpserver.HttpHandler;
 
 import com.google.enterprise.adaptor.AbstractAdaptor;
 import com.google.enterprise.adaptor.AdaptorContext;
-import com.google.enterprise.adaptor.AuthnAdaptor;
+import com.google.enterprise.adaptor.AuthnAuthority;
 import com.google.enterprise.adaptor.AuthnIdentity;
 import com.google.enterprise.adaptor.Config;
 import com.google.enterprise.adaptor.DocIdPusher;
@@ -66,7 +66,7 @@ import java.util.logging.Logger;
 
 /** Adaptor that authenticates users with Google. */
 public class GoogleAuthnAdaptor extends AbstractAdaptor
-    implements AuthnAdaptor {
+    implements AuthnAuthority {
   private static final String PROGRAM_NAME = "GoogleAuthnAdaptor/v0.1";
   private static final String SESSION_DATA = "authndata";
 
@@ -90,6 +90,7 @@ public class GoogleAuthnAdaptor extends AbstractAdaptor
   @Override
   public void init(AdaptorContext context) throws IOException {
     this.context = context;
+    context.setAuthnAuthority(this);
     Config config = context.getConfig();
     consumerKey = config.getValue("google-authn.consumerKey");
     consumerSecret = context.getSensitiveValueDecoder().decodeValue(
