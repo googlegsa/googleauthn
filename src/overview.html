@@ -4,7 +4,7 @@
 Google Authentication Adaptor Deployment
 </center>
 
-Starting point (aka .Requirements.):<br><ul>
+Starting point (aka Requirements):<br><ul>
 <li> Have a Google domain that you can administer
 <li> Have Java JRE 1.6u27 or higher on computer that runs adaptor
 <li> Get binary (Java jar file)
@@ -13,42 +13,48 @@ Starting point (aka .Requirements.):<br><ul>
 <br>
 
 4 steps to deployment:<ol>
-<li> Get your instance of the application a .key. from Google
-<li> Administer domain, adding application.s key and giving application permissions
+<li> Get your instance of the application a key from Google
+<li> Administer domain, adding application's key and giving application permissions
 <li> Configure your adaptor by creating an adaptor-config.properties file
 <li> Configure your GSA -- including LDAP
 </ol>
 
 <br>
 
-Step 1 Alternative A -- Get your instance of the application a .key. from Google.<br>
+Step 1 Alternative A -- Get your instance of the application a key from Google.<br>
 <ul>
     <li>Create an API project in the Google APIs Console (https://code.google.com/apis/console/)
-    <li>Select the API Access tab in your API Project, click Create an OAuth 2.0 client ID, and follow the prompts to create an Installed application Application Type with required access credentials.  At the end of this creation process you should have a Client ID and Client secret .
+    <li>Select the API Access tab in your API Project, click Create an OAuth 2.0 client ID, and 
+      follow the prompts to create an Installed Application Type with required access credentials.
+      At the end of this creation process you should have a Client ID and Client secret.
 </ul>
 
 <br>
 
-Step 1 Alternative B -- Use your Google Apps Domain.s Client ID and Client secret.<br>
+Step 1 Alternative B -- Use your Google Apps Domain's Client ID and Client secret.<br>
 <ul>
    <li> Login to your domain. Goto Advanced tools > Authentication > Manage OAuth domain key
-   <li> Record your OAuth consumer key and OAuth consumer secret. These are equivalent to the Client ID and Client secret of step 1A.
+   <li> Record your OAuth consumer key and OAuth consumer secret. These are equivalent to the
+     Client ID and Client secret.
    <li> Make sure that the Enable this consumer key checkbox on Oauth consumer key is checked.
 
+   <br>
    Note: Alternative B may is simpler than Alternative A, but has been flaky.
-   Note: Allow access to all APIs checkbox doesn.t work as expected.
+   <br>
+   Note: Allow access to all APIs checkbox doesn't work as expected.
 </ul>
 
 <br>
 
-Step 2 -- Administer domain, adding application.s key and giving application permission<br>
+Step 2 -- Administer domain, adding application's key and giving application permission<br>
 <ul>
    <li> Login to your domain.  Goto Advanced tools > Authentication > Manage third party OAuth Client access
-   <li> Add your new service account as an Authorized API client. Put your Client ID in the Client Name column and put this value for the One or More API Scopes:
+   <li> Add your new service account as an Authorized API client. Put your Client ID in the Client Name
+      column and put this value for scope:
 
 https://apps-apis.google.com/a/feeds/group/#readonly
 
-   <li>If successful, then each scope will have a user-readable name (like .Group Provisioning.).
+   <li>If successful, the scope will have a user-readable name (eg "Group Provisioning").
 </ul>
 
 <br>
@@ -74,12 +80,16 @@ Step 4 -- Configure your GSA<br>
     Mechanisms > SAML. Add a new mechanism where:
     <dl>
       <dt>IDP Entity ID</dt>
-      <dd>http://google.com/enterprise/gsa/adaptor</dd>
+      <dd>Default is <code>http://google.com/enterprise/gsa/adaptor</code>.
+        Can be overridden with config variable: <code>server.samlEntityId</code> </dd>
       <dt>Login URL<dt>
-      <dd>https://bruteforce.mtv.corp.google.com:5678/samlip</dd>
-      <dt>Artifact Resolver URL</dt>
-      <dd>https://bruteforce.mtv.corp.google.com:5678/artifact</dd>
+      <dd>https://connector-host:connector-port/samlip</dd>
+      <dt>Public Key of IDP</dt>
+      <dd></dd>
     </dl>
+    <br>
+    Note: Use your adaptor host instead of "connector-host:connector-port".
+    "samlip" is hardcoded and needs to be exactly that.
 </ul>
 
 Step 5 -- Set up Security<br>
