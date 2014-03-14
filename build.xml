@@ -17,7 +17,7 @@
   <property name="javadoc.dir" location="${build.dir}/javadoc"/>
   <property name="resource.dir" location="resources"/>
   <property name="lib.dir" location="lib"/>
-  <property name="junit.jar" location="${lib.dir}/plexi/lib/junit-4.8.2.jar"/>
+  <property name="junit.jar" location="${lib.dir}/junit-4.8.2.jar"/>
   <property name="adaptor.class"
     value="com.google.enterprise.adaptor.googleauthn.GoogleAuthnAdaptor"/>
   <property name="adaptor.args" value=""/>
