@@ -24,7 +24,7 @@
   <property name="cobertura.dir" value="${basedir}/../cobertura/"/>
   <!-- Adaptor suffix for distribution files. Useful for placing version numbers
        on our jars. -->
-  <condition property="adaptorlib.suffix" value="-${adaptor.version}">
+  <condition property="adaptor.suffix" value="-${adaptor.version}">
     <isset property="adaptor.version"/>
   </condition>
   <!-- If adaptor.version isn't set, simply use the current date. -->
@@ -196,7 +196,7 @@ Copy ${mail.jar.base} to: ${mail.jar.dir}</fail>
         <attribute name="Class-Path" value="${tmp.adaptor.classpath}"/>
         <section name="com/google/enterprise/adaptor/googleauthn/">
           <attribute name="Implementation-Title"
-            value="Google Authnetication Adaptor"/>
+            value="Google Authentication Adaptor"/>
           <attribute name="Implementation-Vendor" value="Google Inc."/>
           <attribute name="Implementation-Version"
             value="${adaptor.version}"/>
